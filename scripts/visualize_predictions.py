@@ -1,12 +1,16 @@
 import pandas as pd
 import matplotlib.pyplot as plt
+import seaborn as sns
 from pathlib import Path
+
+# Set seaborn style for better visuals
+sns.set_style('whitegrid')
 
 # Set script directory
 script_dir = Path(__file__).resolve().parent
 
 # Load dataset
-csv_file = script_dir / "nasa_flare_events_2010_2025.csv"
+csv_file = script_dir / "historical_goes_2010_2025_cleaned.csv"
 df = pd.read_csv(csv_file)
 
 # Show dataset structure
@@ -100,25 +104,32 @@ if "beginTime" in df.columns and "classType" in df.columns:
     plt.savefig(script_dir / "flare_scatter_time.png", dpi=300)
     plt.show()
 
+# ------------------------------
+# 5. Heat map for flare counts by year and month
+# ------------------------------
+if "year" in df.columns and "month" in df.columns:
+    pivot_table = df.groupby(['year', 'month']).size().unstack(fill_value=0)
+    plt.figure(figsize=(12, 8))
+    sns.heatmap(pivot_table, annot=True, fmt="d", cmap="YlGnBu", cbar_kws={'label': 'Number of Flares'})
+    plt.title("Heat Map of Solar Flare Counts by Year and Month")
+    plt.xlabel("Month")
+    plt.ylabel("Year")
+    plt.tight_layout()
+    plt.savefig(script_dir / "flare_heatmap_year_month.png", dpi=300)
+    plt.show()
+
+# ------------------------------
+# 6. Correlation heat map for numerical columns
+# ------------------------------
+numerical_cols = ['classNumeric', 'activeRegionNum']
+available_num_cols = [col for col in numerical_cols if col in df.columns]
+if available_num_cols:
+    corr_matrix = df[available_num_cols].corr()
+    plt.figure(figsize=(8, 6))
+    sns.heatmap(corr_matrix, annot=True, cmap="coolwarm", vmin=-1, vmax=1, cbar_kws={'label': 'Correlation'})
+    plt.title("Correlation Heat Map of Numerical Features")
+    plt.tight_layout()
+    plt.savefig(script_dir / "correlation_heatmap.png", dpi=300)
+    plt.show()
+
 print("\n✅ Graphs saved in the same folder as this script.")
-
-
-
-# Histogram of Peak Intensity
-plt.figure(figsize=(8, 5))
-plt.hist(df['peak_intensity'], bins=30, color='skyblue', edgecolor='black')
-plt.xlabel("Peak Intensity")
-plt.ylabel("Frequency")
-plt.title("Distribution of Peak Intensity")
-plt.tight_layout()
-plt.show()
-
-# Top 20 Flare Classes
-plt.figure(figsize=(10, 6))
-df['flare_class'].value_counts().head(20).plot(kind='bar', color='orange')
-plt.xlabel("Flare Class")
-plt.ylabel("Count")
-plt.title("Top 20 Flare Class Distribution")
-plt.xticks(rotation=45)
-plt.tight_layout()
-plt.show()

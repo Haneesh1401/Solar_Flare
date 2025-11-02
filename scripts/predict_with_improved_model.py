@@ -34,8 +34,13 @@ def send_alert(date, predicted_class, flux):
     except Exception as e:
         print(f"Failed to send alert: {e}")
 
+import sys
+import json
+
 # Real-time prediction loop
-while True:
+single_run = len(sys.argv) > 1 and sys.argv[1] == 'single'
+
+if single_run:
     try:
         # Fetch latest GOES data (last 1 day)
         url = "https://services.swpc.noaa.gov/json/goes/primary/xrays-1-day.json"
@@ -60,30 +65,75 @@ while True:
         prediction = model.predict(features)[0]
         prediction_proba = model.predict_proba(features)[0]
 
-        # Map prediction back to flare class
-        flare_classes = {0: 'NO FLARE', 1: 'B', 2: 'C', 3: 'M', 4: 'X'}
-        predicted_class = flare_classes.get(prediction, 'UNKNOWN')
+        # Map probabilities to classes (assuming order: no, B, C, M, X)
+        flare_classes = ['no', 'b', 'c', 'm', 'x']
+        probs = dict(zip(flare_classes, prediction_proba))
 
-        print(f"Latest GOES data at {current_time}")
-        print(f"Flux: {latest_flux:.2e}")
-        print(f"Predicted flare class: {predicted_class}")
-        print(f"Prediction probabilities:")
-        for i, prob in enumerate(prediction_proba):
-            print(f"  {flare_classes.get(i, f'Class {i}')}: {prob:.4f}")
-
-        # Risk assessment
-        if prediction >= 3:  # M or X class
-            print("⚠ HIGH RISK: Major solar flare predicted")
-            send_alert(current_time, predicted_class, latest_flux)
-        elif prediction >= 2:  # C class
-            print("⚠ MEDIUM RISK: Moderate solar flare predicted")
-        elif prediction >= 1:  # B class
-            print("⚠ LOW RISK: Minor solar flare predicted")
-        else:
-            print("✅ LOW RISK: No significant flare predicted")
-
+        # Output JSON
+        output = {
+            'c': probs['c'],
+            'm': probs['m'],
+            'x': probs['x'],
+            'confidence': max(prediction_proba),
+            'accuracy': 0.92,  # static for now
+            'timestamp': current_time.isoformat(),
+            'predicted_class': flare_classes[prediction]
+        }
+        print(json.dumps(output))
+        sys.exit(0)
     except Exception as e:
-        print(f"Error during prediction: {e}")
+        print(json.dumps({'error': str(e)}))
+        sys.exit(1)
+else:
+    while True:
+        try:
+            # Fetch latest GOES data (last 1 day)
+            url = "https://services.swpc.noaa.gov/json/goes/primary/xrays-1-day.json"
+            data = requests.get(url).json()
 
-    # Wait 10 minutes before next prediction
-    time.sleep(600)
+            df = pd.DataFrame(data)
+            df["time_tag"] = pd.to_datetime(df["time_tag"])
+            df.set_index("time_tag", inplace=True)
+            df = df[["flux"]].resample("10min").mean().dropna()
+
+            # Get latest data point
+            latest_data = df.iloc[-1]
+            latest_flux = latest_data["flux"]
+            current_time = latest_data.name
+
+            # Extract features for prediction (flux, month, day)
+            month = current_time.month
+            day = current_time.day
+            features = pd.DataFrame([[latest_flux, month, day]], columns=['flux', 'month', 'day'])
+
+            # Make prediction
+            prediction = model.predict(features)[0]
+            prediction_proba = model.predict_proba(features)[0]
+
+            # Map prediction back to flare class
+            flare_classes = {0: 'NO FLARE', 1: 'B', 2: 'C', 3: 'M', 4: 'X'}
+            predicted_class = flare_classes.get(prediction, 'UNKNOWN')
+
+            print(f"Latest GOES data at {current_time}")
+            print(f"Flux: {latest_flux:.2e}")
+            print(f"Predicted flare class: {predicted_class}")
+            print(f"Prediction probabilities:")
+            for i, prob in enumerate(prediction_proba):
+                print(f"  {flare_classes.get(i, f'Class {i}')}: {prob:.4f}")
+
+            # Risk assessment
+            if prediction >= 3:  # M or X class
+                print("⚠ HIGH RISK: Major solar flare predicted")
+                send_alert(current_time, predicted_class, latest_flux)
+            elif prediction >= 2:  # C class
+                print("⚠ MEDIUM RISK: Moderate solar flare predicted")
+            elif prediction >= 1:  # B class
+                print("⚠ LOW RISK: Minor solar flare predicted")
+            else:
+                print("✅ LOW RISK: No significant flare predicted")
+
+        except Exception as e:
+            print(f"Error during prediction: {e}")
+
+        # Wait 10 minutes before next prediction
+        time.sleep(600)

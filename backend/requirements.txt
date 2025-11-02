@@ -5,3 +5,12 @@ pandas
 joblib
 prophet
 requests
+xgboost
+lightgbm
+catboost
+tensorflow
+plotly
+pydantic
+prometheus-client
+celery
+redis

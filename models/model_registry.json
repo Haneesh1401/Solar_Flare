@@ -1,0 +1,77 @@
+{
+  "v_1_8c6bf77c": {
+    "model_name": "solar_flare_rf",
+    "version": "v_1_8c6bf77c",
+    "model_path": "C:\\Users\\Haneesh.B\\Downloads\\Solar_Flare_new\\models\\solar_flare_rf_v_1_8c6bf77c.joblib",
+    "model_params": {
+      "n_estimators": 100,
+      "max_depth": 10
+    },
+    "metrics": {
+      "accuracy": 0.85,
+      "precision": 0.82,
+      "recall": 0.88,
+      "f1_score": 0.85
+    },
+    "created_at": "2025-09-25T09:47:42.668485",
+    "model_type": "sklearn",
+    "model_hash": "8c6bf77c"
+  },
+  "v_1_c88c25a0": {
+    "model_name": "solar_flare_rf",
+    "version": "v_1_c88c25a0",
+    "model_path": "C:\\Users\\Haneesh.B\\Downloads\\Solar_Flare_new\\models\\solar_flare_rf_v_1_c88c25a0.joblib",
+    "model_params": {
+      "n_estimators": 50,
+      "max_depth": 5,
+      "random_state": 42
+    },
+    "metrics": {
+      "accuracy": 0.82,
+      "precision": 0.8163265306122449,
+      "recall": 0.8602150537634409,
+      "f1_score": 0.837696335078534
+    },
+    "created_at": "2025-09-25T09:51:24.901251",
+    "model_type": "sklearn",
+    "model_hash": "c88c25a0"
+  },
+  "v_1_52bb7fd9": {
+    "model_name": "solar_flare_rf",
+    "version": "v_1_52bb7fd9",
+    "model_path": "C:\\Users\\Haneesh.B\\Downloads\\Solar_Flare_new\\models\\solar_flare_rf_v_1_52bb7fd9.joblib",
+    "model_params": {
+      "n_estimators": 100,
+      "max_depth": 10,
+      "random_state": 42
+    },
+    "metrics": {
+      "accuracy": 0.87,
+      "precision": 0.8631578947368421,
+      "recall": 0.8817204301075268,
+      "f1_score": 0.8723404255319148
+    },
+    "created_at": "2025-09-25T09:51:25.356785",
+    "model_type": "sklearn",
+    "model_hash": "52bb7fd9"
+  },
+  "v_1_7671081c": {
+    "model_name": "solar_flare_rf",
+    "version": "v_1_7671081c",
+    "model_path": "C:\\Users\\Haneesh.B\\Downloads\\Solar_Flare_new\\models\\solar_flare_rf_v_1_7671081c.joblib",
+    "model_params": {
+      "n_estimators": 150,
+      "max_depth": 15,
+      "random_state": 42
+    },
+    "metrics": {
+      "accuracy": 0.86,
+      "precision": 0.8526315789473685,
+      "recall": 0.8709677419354839,
+      "f1_score": 0.8617021276595745
+    },
+    "created_at": "2025-09-25T09:51:25.749674",
+    "model_type": "sklearn",
+    "model_hash": "7671081c"
+  }
+}
